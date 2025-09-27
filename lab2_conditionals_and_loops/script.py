@@ -93,3 +93,57 @@ def task6():
         a += 1
 
     print(result_sum)
+
+
+def task7():
+    while True:
+        a_str = input("Введіть число A: ")
+
+        if a_str.replace('.', '', 1).isdigit():
+            a = float(a_str)
+            a = math.ceil(a)
+            if 50 >= a >= 0:
+                break
+            else:
+                print("Введено невірну число.")
+        else:
+            print("Введено невірну число.")
+
+    result_sum = 0
+    for num in range(a, 50):
+        result_sum += pow(num, 2)
+
+
+def task8(n):
+    if not isinstance(n, int) or n <= 1:
+        print("Передано не вірні дані")
+        return
+
+    k=0
+    while pow(5,k)<=n:
+        k+=1
+
+    print(k)
+
+
+def task9(n):
+    if not isinstance(n, (int, float)):
+        print("Передано не вірне значення")
+        return
+
+    for i in range(1, n+1):
+        square=pow(i,2)
+        if square > n:
+            print("Перше число більше за n:", square)
+            return
+
+def task10(n):
+    if not isinstance(n, (int, float)):
+        print("Передано не вірне значення")
+        return
+
+    i=1
+    while n < pow(i,2)+1:
+        i+=1
+
+    print("Перше число більше за n:", i+1)
