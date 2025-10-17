@@ -153,7 +153,10 @@ def task10(n):
     while pow(i, 2) + 1 <= n:
         i += 1
 
-    print("Перше число більше за n:", pow(i, 2) + 1)
+    if n <0:
+        print("Перше число більше за n: 1")
+    else:
+        print("Перше число більше за n:", pow(i, 2) + 1)
 
 
 def task11(d, m):
