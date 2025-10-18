@@ -204,4 +204,28 @@ def task06():
     print(f"Кількість голосних літер у тексті: {count}")
 
 
-# def task07():
+def task07():
+    while True:
+        text = input("Введіть англійський текст (до 1000 слів): ").strip()
+        if not text:
+            print("Помилка: рядок порожній.")
+            continue
+        if not re.fullmatch(r"[A-Za-z\s,.!?';:-]+", text):
+            print("Помилка: текст має містити лише англійські літери та розділові знаки.")
+            continue
+
+        words = re.findall(r"[A-Za-z']+", text)
+        if len(words) > 1000:
+            print("Помилка: текст містить більше ніж 1000 слів.")
+            continue
+        break
+
+    capitalized_words = re.findall(r"\b[A-Z][a-z']*\b", text)
+
+    print("\nСлова з великої літери (імена та власні назви):")
+    if capitalized_words:
+        print(capitalized_words)
+    else:
+        print("Не знайдено слів, що починаються з великої літери.")
+
+task07()
