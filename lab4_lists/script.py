@@ -95,4 +95,63 @@ def task05():
     print("Пари від’ємних чисел, що стоять поруч:", pairs)
 
 
-task05()
+def task06(numbers):
+    if len(numbers) != 10:
+        print("Помилка: список має містити рівно 10 елементів.")
+        return
+
+    if not all(isinstance(n, int) for n in numbers):
+        print("Є елементи, які не є цілими числами")
+        return
+
+    max_value = max(numbers)
+
+    numbers2 = []
+    for num in numbers:
+        if num != max_value:
+            numbers2.append(pow(num, 2))
+
+    numbers2.sort(reverse=True)
+
+    print("Вихідний список:", numbers)
+    print("Максимальний елемент:", max_value)
+    print("Квадрати менших чисел у порядку зменшення:", numbers2)
+
+
+def task07():
+    numbers = []
+    for _ in range(30):
+        if random.choice([True, False]):
+            numbers.append(random.randint(-100, 100))
+        else:
+            numbers.append(random.uniform(-100, 100))
+    print("Вихідний список:", numbers)
+
+    min_abs_value = min(numbers, key=abs)
+    print("Мінімальний по модулю елемент:", min_abs_value)
+
+    sorted_numbers = sorted(numbers)
+    print("Список у порядку зростання:", sorted_numbers)
+
+
+def task08():
+    numbers = []
+    for _ in range(30):
+        if random.choice([True, False]):
+            numbers.append(random.randint(-100, 100))
+        else:
+            numbers.append(random.uniform(-100, 100))
+    print("Вихідний список:", numbers)
+
+    numbers2 = []
+    for i in range(0, len(numbers), 3):
+        numbers2.append(numbers[i:i + 3])
+
+    sorted_numbers2 = sorted(numbers2, key=lambda sublist: sum(map(abs, sublist)))
+
+    print("Підсписки у порядку зростання за сумою абсолютних значень:")
+    for obj in sorted_numbers2:
+        print(obj)
+
+
+task08()
