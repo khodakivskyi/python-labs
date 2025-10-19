@@ -1,11 +1,15 @@
 import random
 
 
-def task01():
+def validate_integer_list(prompt="Введіть цілі числа через пробіл: "):
     while True:
-        numbers_input = input("Введіть цілі числа через пробіл: ").split()
-        numbers = []
+        numbers_input = input(prompt).split()
 
+        if not numbers_input:
+            print("Помилка: ви не ввели жодного числа.")
+            continue
+
+        numbers = []
         all_valid = True
 
         for x in numbers_input:
@@ -16,32 +20,40 @@ def task01():
                 all_valid = False
 
         if all_valid and numbers:
-            break
+            return numbers
         else:
             print("Спробуйте ще раз.\n")
+
+
+def validate_list_length(numbers, required_length):
+    if numbers is None or not isinstance(numbers, list):
+        print("Помилка: передано некоректний список.")
+        return False
+    if len(numbers) != required_length:
+        print(f"Помилка: список має містити рівно {required_length} елементів.")
+        return False
+    return True
+
+
+def validate_all_integers(numbers):
+    if not all(isinstance(n, int) for n in numbers):
+        print("Є елементи, які не є цілими числами")
+        return False
+    return True
+
+
+#tasks
+def task01():
+    numbers = validate_integer_list("Введіть цілі числа через пробіл: ")
 
     largest = max(numbers)
     print("Найбільший елемент:", largest)
+    numbers.reverse()
+    print("Список у зворотному порядку:", numbers)
 
 
 def task02():
-    while True:
-        numbers_input = input("Введіть цілі числа через пробіл: ").split()
-        numbers = []
-
-        all_valid = True
-
-        for x in numbers_input:
-            try:
-                numbers.append(int(x))
-            except ValueError:
-                print(f"Помилка: '{x}' — не ціле число.")
-                all_valid = False
-
-        if all_valid and numbers:
-            break
-        else:
-            print("Спробуйте ще раз.\n")
+    numbers = validate_integer_list("Введіть цілі числа через пробіл: ")
 
     positive_numbers = [n for n in numbers if n > 0]
     others = [n for n in numbers if n <= 0]
@@ -52,16 +64,17 @@ def task02():
 
 
 def task03(numbers):
-    if len(numbers) != 20:
-        print("Помилка: список має містити рівно 20 елементів.")
+    if not validate_list_length(numbers, 20):
         return
+
+    print("Вихідний список:", numbers)
 
     odd_index_sum = 0
     for i in range(1, len(numbers), 2):
         try:
             odd_index_sum += float(numbers[i])
         except (ValueError, TypeError):
-            pass
+            print(f"Попередження: елемент {numbers[i]} не є числом.")
 
     print("Сума чисел з непарними індексами:", odd_index_sum)
 
@@ -88,20 +101,21 @@ def task05():
     print("Вихідний список:", numbers)
 
     pairs = []
-    for i in range(len(numbers)-1):
-        if numbers[i] < 0 and numbers[i+1]<0:
-            pairs.append((numbers[i], numbers[i+1]))
+    for i in range(len(numbers) - 1):
+        if numbers[i] < 0 and numbers[i + 1] < 0:
+            pairs.append((numbers[i], numbers[i + 1]))
 
-    print("Пари від’ємних чисел, що стоять поруч:", pairs)
+    if pairs:
+        print("Пари від'ємних чисел, що стоять поруч:", pairs)
+    else:
+        print("Пар від'ємних чисел, що стоять поруч, не знайдено.")
 
 
 def task06(numbers):
-    if len(numbers) != 10:
-        print("Помилка: список має містити рівно 10 елементів.")
+    if not validate_list_length(numbers, 10):
         return
 
-    if not all(isinstance(n, int) for n in numbers):
-        print("Є елементи, які не є цілими числами")
+    if not validate_all_integers(numbers):
         return
 
     max_value = max(numbers)
@@ -110,6 +124,10 @@ def task06(numbers):
     for num in numbers:
         if num != max_value:
             numbers2.append(pow(num, 2))
+
+    if not numbers2:
+        print("Всі елементи рівні максимальному значенню.")
+        return
 
     numbers2.sort(reverse=True)
 
