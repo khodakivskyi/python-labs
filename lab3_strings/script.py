@@ -1,32 +1,68 @@
 import re
 
 
-def task01():
+def validate_text(max_words=None, language='any', prompt="Введіть текст: "):
     while True:
-        text = input("Введіть текст (до 1000 слів українською): ").strip()
+        text = input(prompt).strip()
 
         if not text:
             print("Помилка: рядок порожній.")
             continue
 
-        if not re.search(r"[А-Яа-яЇїІіЄєҐґA-Za-z]", text):
-            print("Помилка: ввід має містити текст.")
+        if language == 'eng':
+            if not re.fullmatch(r"[A-Za-z\s,.!?';:-]+", text):
+                print("Помилка: ввід має містити англійський текст.")
+                continue
+            words = re.findall(r"[A-Za-z']+", text)
+        elif language == 'ukr':
+            if not re.search(r"[А-Яа-яЇїІіЄєҐґ]", text):
+                print("Помилка: ввід має містити український текст.")
+                continue
+            words = re.findall(r"[А-Яа-яЇїІіЄєҐґA-Za-z']+", text)
+        else:
+            if not re.search(r"[А-Яа-яЇїІіЄєҐґA-Za-z]", text):
+                print("Помилка: ввід має містити текст.")
+                continue
+            words = re.findall(r"[А-Яа-яЇїІіЄєҐґA-Za-z']+", text)
+
+        if max_words and len(words) > max_words:
+            print(f"Помилка: текст містить більше ніж {max_words} слів.")
             continue
 
-        words = re.findall(r"[А-Яа-яЇїІіЄєҐґA-Za-z']+", text)
-        if len(words) > 1000:
-            print("Помилка: текст містить більше ніж 1000 слів.")
-            continue
+        return text
 
-        break
 
+def validate_word(prompt="Введіть слово: "):
     while True:
-        search_word = input("Введіть слово, з якого мають починатися інші слова: ").strip()
-        if not search_word.isalpha():
-            print("Помилка: пошукове слово має містити лише літери.")
+        word = input(prompt).strip()
+        if word.startswith("'"):
+            print("Помилка: слово не може починатися з апострофа.")
             continue
+        if not re.match(r"^[А-Яа-яЇїІіЄєҐґA-Za-z']+$", word):
+            print("Помилка: слово має містити лише літери (можливі апострофи).")
+            continue
+        return word
 
-        break
+def validate_letter(language='eng', prompt="Введіть літеру: "):
+    while True:
+        letter = input(prompt).strip()
+
+        if language == 'eng':
+            if len(letter) == 1 and re.fullmatch(r"[A-Za-z]", letter):
+                return letter.upper()
+            else:
+                print("Помилка: введіть одну англійську літеру.")
+        else:
+            if len(letter) == 1 and re.fullmatch(r"[А-Яа-яЇїІіЄєҐґ]", letter):
+                return letter.upper()
+            else:
+                print("Помилка: введіть одну українську літеру.")
+
+
+# tasks
+def task01():
+    text = validate_text(max_words=1000, language='ukr', prompt="Введіть текст (до 1000 слів українською): ")
+    search_word = validate_word("Введіть слово, з якого мають починатися інші слова: ")
 
     pattern = rf"\b{re.escape(search_word)}[А-Яа-яЇїІіЄєҐґA-Za-z']*"
     found = re.findall(pattern, text, re.IGNORECASE)
@@ -35,25 +71,13 @@ def task01():
 
 
 def task02():
-    while True:
-        text = input("Введіть текст: ").strip()
+    text = validate_text(language='ukr', prompt="Введіть текст: ")
 
-        if not text:
-            print("Помилка: рядок порожній.")
-            continue
-
-        if not re.search(r"[А-Яа-яЇїІіЄєҐґA-Za-z]", text):
-            print("Помилка: ввід має містити текст.")
-            continue
-
-        break
-
-    count_replacements = text.count('a')
-    newText = text.replace('a', 'A')
+    count_replacements = text.count('а')
+    newText = text.replace('а', 'А')
 
     print("Рядок після заміни:", newText)
     print("Кількість замін:", count_replacements)
-
     print("Кількість символів:", len(newText))
 
     letters = sum(1 for char in newText if char.isalpha())
@@ -61,171 +85,104 @@ def task02():
 
 
 def task03():
-    while True:
-        text = input("Введіть текст: ").strip()
-        if not text:
-            print("Помилка: рядок порожній.")
-            continue
-        if not re.search(r"[А-Яа-яЇїІіЄєҐґA-Za-z]", text):
-            print("Помилка: текст має містити літери.")
-            continue
-        break
+    text = validate_text(language='any', prompt="Введіть текст: ")
+    search_word = validate_word("Введіть слово для пошуку: ")
 
-    while True:
-        search_word = input("Введіть слово для пошуку: ").strip()
-        if not search_word.isalpha():
-            print("Помилка: слово має містити лише літери.")
-            continue
-        break
-
-    pattern = rf"\b{re.escape(search_word)}[А-Яа-яЇїІіЄєҐґA-Za-z']*\b"
+    pattern = rf"\b{re.escape(search_word)}\b"
     matches = re.findall(pattern, text, re.IGNORECASE)
 
     print(f"Слово '{search_word}' зустрічається {len(matches)} раз(и).")
 
 
 def task04():
-    while True:
-        text = input("Введіть текст (до 1000 слів українською): ").strip()
-        if not text:
-            print("Помилка: рядок порожній.")
-            continue
-        if not re.search(r"[А-Яа-яЇїІіЄєҐґA-Za-z]", text):
-            print("Помилка: ввід має містити текст.")
-            continue
+    text = validate_text(max_words=1000, language='ukr', prompt="Введіть текст (до 1000 слів українською): ")
 
-        words = re.findall(r"[А-Яа-яЇїІіЄєҐґA-Za-z']+", text)
-        if len(words) > 1000:
-            print("Помилка: текст містить більше ніж 1000 слів.")
-            continue
-        break
+    words_with_pos = [(m.group(), m.start(), m.end()) for m in re.finditer(r"[А-Яа-яЇїІіЄєҐґA-Za-z']+", text)]
+    half_index = len(words_with_pos) // 2
 
-    half_index = len(words) // 2
+    if not words_with_pos:
+        print("Текст не містить слів!")
+        return
 
-    first_half_words = words[:half_index]
-    second_half_words = words[half_index:]
+    result = ""
+    last_pos = 0
 
-    first_half_words = [w.capitalize() for w in first_half_words]
+    for i, (word, start, end) in enumerate(words_with_pos):
+        result += text[last_pos:start]
 
-    second_half_words = [w.lower() + '*' for w in second_half_words]
+        if i == half_index:
+            result += '| '
 
-    tokens = re.findall(r"\w+|[^\w\s]", text, re.UNICODE)
-
-    new_tokens = []
-    word_count = 0
-    for tok in tokens:
-        if re.match(r"\w+", tok):
-            if word_count < half_index:
-                new_tokens.append(first_half_words[word_count])
-            else:
-                new_tokens.append(second_half_words[word_count - half_index])
-            word_count += 1
+        if i < half_index:
+            result += word.capitalize()
         else:
-            new_tokens.append(tok)
+            result += word.lower() + '*'
 
-    insert_index = len(new_tokens) // 2
-    new_tokens.insert(insert_index, '|')
+        last_pos = end
 
-    final_text = ''
-    for i, tok in enumerate(new_tokens):
-        if re.match(r"\w+|\*", tok):
-            final_text += tok + ' '
-        else:
-            final_text += tok
+    result += text[last_pos:]
 
     print("Рядок після обробки:")
-    print(final_text.strip())
+    print(result)
 
 
 def task05():
-    while True:
-        text = input("Введіть текст (до 1000 слів англійською): ").strip()
-        if not text:
-            print("Помилка: рядок порожній.")
-            continue
-        if not re.fullmatch(r"[A-Za-z\s,.!?']+", text):
-            print("Помилка: ввід має містити англійський текст.")
-            continue
-
-        words = re.findall(r"[A-Za-z']+", text)
-        if len(words) > 1000:
-            print("Помилка: текст містить більше ніж 1000 слів.")
-            continue
-        break
-
-    while True:
-        start_letter = input("Введіть літеру, з якої мають починатися слова: ").strip()
-        if len(start_letter) == 1 and re.fullmatch(r"[A-Za-z]", start_letter):
-            start_letter = start_letter.upper()
-            break
-        else:
-            print("Помилка: введіть одну англійську літеру.")
-
-    while True:
-        end_letter = input("Введіть літеру, на яку мають закінчуватися слова: ").strip()
-        if len(end_letter) == 1 and re.fullmatch(r"[A-Za-z]", end_letter):
-            end_letter = end_letter.upper()
-            break
-        else:
-            print("Помилка: введіть одну англійську літеру.")
+    text = validate_text(max_words=1000, language='eng', prompt="Введіть текст (до 1000 слів англійською): ")
+    start_letter = validate_letter(language='eng', prompt="Введіть літеру, з якої мають починатися слова: ")
+    end_letter = validate_letter(language='eng', prompt="Введіть літеру, на яку мають закінчуватися слова: ")
 
     words = re.findall(r"[A-Za-z]+", text)
-    print("Слова, які починаються на", start_letter, "або закінчуються на", end_letter, ":")
-    count = 0
-    for word in words:
-        if word[0].upper() == start_letter and word[len(word)-1].upper() == end_letter:
-            print(word)
-            count += 1
 
-    if count == 0:
-        print("Потрібних слів не знайдено")
+    start_words = [word for word in words if word[0].upper() == start_letter]
+    end_words = [word for word in words if word[-1].upper() == end_letter]
+
+    print(f"\nСлова, які починаються на '{start_letter}':")
+    if start_words:
+        for word in start_words:
+            print(word)
+        print(f"Знайдено: {len(start_words)}")
+    else:
+        print("Не знайдено")
+
+    print(f"\nСлова, які закінчуються на '{end_letter}':")
+    if end_words:
+        for word in end_words:
+            print(word)
+        print(f"Знайдено: {len(end_words)}")
+    else:
+        print("Не знайдено")
 
 
 def task06():
-    while True:
-        text = input("Введіть текст (до 100 слів англійською): ").strip()
-        if not text:
-            print("Помилка: рядок порожній.")
-            continue
-        if not re.fullmatch(r"[A-Za-z\s,.!?']+", text):
-            print("Помилка: ввід має містити англійський текст.")
-            continue
-
-        words = re.findall(r"[A-Za-z']+", text)
-        if len(words) > 1000:
-            print("Помилка: текст містить більше ніж 100 слів.")
-            continue
-        break
+    text = validate_text(max_words=100, language='eng', prompt="Введіть текст (до 100 слів англійською): ")
 
     vowels = "aeiouAEIOU"
-
     count = sum(1 for char in text if char in vowels)
 
     print(f"Кількість голосних літер у тексті: {count}")
 
 
 def task07():
-    while True:
-        text = input("Введіть англійський текст (до 1000 слів): ").strip()
-        if not text:
-            print("Помилка: рядок порожній.")
-            continue
-        if not re.fullmatch(r"[A-Za-z\s,.!?';:-]+", text):
-            print("Помилка: текст має містити лише англійські літери та розділові знаки.")
+    text = validate_text(max_words=1000, language='eng', prompt="Введіть англійський текст (до 1000 слів): ")
+
+    sentences = re.split(r'[.!?]+', text)
+
+    proper_nouns = []
+    for sentence in sentences:
+        sentence = sentence.strip()
+        if not sentence:
             continue
 
-        words = re.findall(r"[A-Za-z']+", text)
-        if len(words) > 1000:
-            print("Помилка: текст містить більше ніж 1000 слів.")
-            continue
-        break
+        words_in_sentence = re.findall(r"\b[A-Z][a-z']*\b", sentence)
 
-    capitalized_words = re.findall(r"\b[A-Z][a-z']*\b", text)
+        if len(words_in_sentence) > 1:
+            proper_nouns.extend(words_in_sentence[1:])
 
     print("\nСлова з великої літери (імена та власні назви):")
-    if capitalized_words:
-        print(capitalized_words)
+    if proper_nouns:
+        print(proper_nouns)
     else:
         print("Не знайдено слів, що починаються з великої літери.")
 
-task07()
+
+task01()
