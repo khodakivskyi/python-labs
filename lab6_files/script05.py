@@ -16,7 +16,7 @@ def task5():
 
     if not file_exists:
         with open(file_path, "w", encoding='utf-8') as f:
-            f.write(f"{'ГОСТЬОВА КНИГА':}\n")
+            f.write(f"{'ГОСТЬОВА КНИГА'}\n")
             f.write(f"Файл створено: {creation_time.strftime('%d.%m.%Y %H:%M:%S')}\n")
         print(f"Створено новий файл гостьової книги: {file_path}\n")
     else:

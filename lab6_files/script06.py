@@ -45,11 +45,17 @@ Python's versatility makes it suitable for beginners and experts alike. Its clea
     with open(file_path, "r", encoding='utf-8') as f:
         text = f.read()
     
+    for char in text:
+        if char.isalpha() and not ('a' <= char.lower() <= 'z'):
+            print("Помилка: Завдання вимагає текст англійською мовою.")
+            return
+    
     word_count = len(text.split())
     print(f"Завантажено текст. Кількість слів: {word_count}")
     
     if word_count > 3000:
         print("Помилка: Текст містить більше 3000 слів")
+        return
     
     letter_count = sum(1 for char in text if char.isalpha())
     if letter_count == 0:
