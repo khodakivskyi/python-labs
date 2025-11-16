@@ -1,3 +1,4 @@
+import os
 import re
 import csv
 from datetime import datetime, date
@@ -45,7 +46,7 @@ class Person:
 
         return age
 
-    def full_name(self):
+    def get_fullname(self):
         return "%s %s" % (self.surname, self.first_name)
 
 
@@ -99,11 +100,11 @@ def modifier(filename):
                 for j, field in enumerate(fieldnames):
                     ordered_row[field] = new_row[field]
                     if j == name_index:
-                        ordered_row['fullname'] = person.full_name()
+                        ordered_row['fullname'] = person.get_fullname()
                 ordered_row['age'] = person.get_age()
                 new_rows.append(ordered_row)
             else:
-                new_row['fullname'] = person.full_name()
+                new_row['fullname'] = person.get_fullname()
                 new_row['age'] = person.get_age()
                 new_rows.append(new_row)
         else:
@@ -127,4 +128,20 @@ def modifier(filename):
         writer.writerows(new_rows)
 
 
+def task01():
+    person = Person("Ходаківський", "Андрій", "2007-02-04", "hodak")
 
+    if person:
+        print(person.get_fullname())
+        print(person.get_age())
+
+def current_work_path():
+    return os.getcwd()
+
+def file_path():
+    return os.path.join(current_work_path(), "data.csv")
+
+def task02():
+    modifier(file_path())
+
+task02()
