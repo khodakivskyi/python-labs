@@ -1,4 +1,5 @@
 import re
+import csv
 from datetime import datetime, date
 
 class Person:
@@ -46,3 +47,84 @@ class Person:
 
     def full_name(self):
         return "%s %s" % (self.surname, self.first_name)
+
+
+def modifier(filename):
+    rows = []
+    with open(filename, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        fieldnames = reader.fieldnames
+        rows = list(reader)
+    
+    if not rows:
+        return
+    
+    persons = []
+    for row in rows:
+        surname = row.get('surname', row.get('Surname', ''))
+        first_name = row.get('first_name', row.get('firstname', row.get('name', row.get('Name', ''))))
+        birth_date = row.get('birth_date', row.get('birthdate', row.get('birth', '')))
+        nickname = row.get('nickname', row.get('Nickname', None))
+        
+        try:
+            person = Person(surname, first_name, birth_date, nickname if nickname else None)
+            persons.append(person)
+        except ValueError as e:
+            print(f"Помилка створення об'єкта Person: {e}")
+            continue
+    
+    new_fieldnames = []
+    name_index = None
+    
+    for i, field in enumerate(fieldnames):
+        if field.lower() in ['name', 'first_name', 'firstname']:
+            name_index = i
+            break
+    
+    for i, field in enumerate(fieldnames):
+        new_fieldnames.append(field)
+        if i == name_index:
+            new_fieldnames.append('fullname')
+    
+    new_fieldnames.append('age')
+    
+    new_rows = []
+    for i, row in enumerate(rows):
+        if i < len(persons):
+            person = persons[i]
+            new_row = dict(row)
+            
+            if name_index is not None:
+                ordered_row = {}
+                for j, field in enumerate(fieldnames):
+                    ordered_row[field] = new_row[field]
+                    if j == name_index:
+                        ordered_row['fullname'] = person.full_name()
+                ordered_row['age'] = person.get_age()
+                new_rows.append(ordered_row)
+            else:
+                new_row['fullname'] = person.full_name()
+                new_row['age'] = person.get_age()
+                new_rows.append(new_row)
+        else:
+            new_row = dict(row)
+            if name_index is not None:
+                ordered_row = {}
+                for j, field in enumerate(fieldnames):
+                    ordered_row[field] = new_row[field]
+                    if j == name_index:
+                        ordered_row['fullname'] = ''
+                ordered_row['age'] = ''
+                new_rows.append(ordered_row)
+            else:
+                new_row['fullname'] = ''
+                new_row['age'] = ''
+                new_rows.append(new_row)
+    
+    with open(filename, 'w', encoding='utf-8', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=new_fieldnames)
+        writer.writeheader()
+        writer.writerows(new_rows)
+
+
+
