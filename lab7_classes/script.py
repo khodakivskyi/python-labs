@@ -23,6 +23,8 @@ class Person:
             self.nickname = None
 
         if isinstance(birth_date, str):
+            if not birth_date.strip():
+                raise ValueError("Поле 'birth_date' невалідне: порожній рядок")
             try:
                 year, month, day = map(int, birth_date.split('-'))
                 birth_date_obj = date(year, month, day)  # <- тут виправлено
@@ -30,6 +32,8 @@ class Person:
                 raise ValueError("Поле 'birth_date' невалідне")
         elif isinstance(birth_date, datetime):
             birth_date_obj = birth_date.date()
+        elif isinstance(birth_date, date):
+            birth_date_obj = birth_date
         else:
             raise ValueError("Поле 'birth_date' невалідне")
 
@@ -44,17 +48,24 @@ class Person:
         if (today.month, today.day) < (self.birth_date.month, self.birth_date.day):
             age -= 1
 
-        return age
+        return str(age)
 
     def get_fullname(self):
         return "%s %s" % (self.surname, self.first_name)
 
 
 def modifier(filename):
+    if not os.path.exists(filename):
+        raise FileNotFoundError(f"Файл '{filename}' не знайдено")
+    
     rows = []
     with open(filename, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         fieldnames = reader.fieldnames
+        
+        if fieldnames is None:
+            raise ValueError("Файл не містить заголовків колонок")
+        
         rows = list(reader)
     
     if not rows:
@@ -67,11 +78,17 @@ def modifier(filename):
         birth_date = row.get('birth_date', row.get('birthdate', row.get('birth', '')))
         nickname = row.get('nickname', row.get('Nickname', None))
         
+        if not surname or not first_name or not birth_date:
+            print(f"Помилка: відсутні обов'язкові поля для рядка {row}")
+            persons.append(None)
+            continue
+        
         try:
             person = Person(surname, first_name, birth_date, nickname if nickname else None)
             persons.append(person)
         except ValueError as e:
             print(f"Помилка створення об'єкта Person: {e}")
+            persons.append(None)
             continue
     
     new_fieldnames = []
@@ -91,10 +108,10 @@ def modifier(filename):
     
     new_rows = []
     for i, row in enumerate(rows):
-        if i < len(persons):
-            person = persons[i]
-            new_row = dict(row)
-            
+        person = persons[i] if i < len(persons) else None
+        new_row = dict(row)
+        
+        if person is not None:
             if name_index is not None:
                 ordered_row = {}
                 for j, field in enumerate(fieldnames):
@@ -108,7 +125,6 @@ def modifier(filename):
                 new_row['age'] = person.get_age()
                 new_rows.append(new_row)
         else:
-            new_row = dict(row)
             if name_index is not None:
                 ordered_row = {}
                 for j, field in enumerate(fieldnames):
