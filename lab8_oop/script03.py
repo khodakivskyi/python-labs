@@ -2,7 +2,13 @@ class Car:
     def __init__(self, make, model, year):
         self.make = make
         self.model = model
-        self.year = int(year)
+        try:
+            year_int = int(year)
+            if year_int < 1886 or year_int > 2100:
+                raise ValueError("Рік має бути між 1886 та 2100")
+            self.year = year_int
+        except (ValueError, TypeError):
+            raise ValueError("Рік має бути цілим числом")
         self.__speed = 0
 
     def accelerate(self):

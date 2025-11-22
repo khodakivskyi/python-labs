@@ -4,11 +4,22 @@ class Dog:
     breed = "невідома порода"
 
     def __init__(self, name, age):
-        self.name = name
-        self.age = age
+        if not isinstance(name, str) or not name.strip():
+            raise ValueError("Ім'я має бути непустим рядком")
+        self.name = name.strip()
+
+        if not isinstance(age, (int, float)) or age < 0 or age > 30:
+            raise ValueError("Вік має бути додатнім числом не більше 30")
+        self.age = int(age)
 
     def describe(self):
-        return f"{self.name}, {self.age} роки, {self.breed}"
+        if self.age == 1:
+            age_word = "рік"
+        elif 2 <= self.age <= 4:
+            age_word = "роки"
+        else:
+            age_word = "років"
+        return f"{self.name}, {self.age} {age_word}, {self.breed}"
 
     def speak(self):
         return f"{self.name} каже: Гав!"
@@ -59,8 +70,15 @@ class Pets:
         lines = [f"Домашні тварини власника {self.name}:"]
         for index, pet in enumerate(self.animals, start=1):
             info = pet.info()
+            age = info['age']
+            if age == 1:
+                age_word = "рік"
+            elif 2 <= age <= 4:
+                age_word = "роки"
+            else:
+                age_word = "років"
             lines.append(
-                f"{index}. {info['name']} ({info['breed']}), {info['age']} років, характер: {info['nature']}"
+                f"{index}. {info['name']} ({info['breed']}), {age} {age_word}, характер: {info['nature']}"
             )
         return "\n".join(lines)
 

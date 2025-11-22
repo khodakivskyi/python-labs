@@ -7,6 +7,9 @@ class NameLengthError(ValueError):
 
 def task06():
     def check_name(name):
+        if not isinstance(name, str):
+            raise TypeError("Ім'я має бути рядком")
+
         if len(name) < 10:
             raise NameLengthError(name)
 

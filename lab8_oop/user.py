@@ -1,9 +1,28 @@
 class User:
     def __init__(self, first_name, last_name, email="", nickname="", newsletter_subscription=False):
-        self.first_name = first_name
-        self.last_name = last_name
-        self.email = email
-        self.nickname = nickname
+        if not isinstance(first_name, str) or not first_name.strip():
+            raise ValueError("Ім'я має бути непустим рядком")
+        if not isinstance(last_name, str) or not last_name.strip():
+            raise ValueError("Прізвище має бути непустим рядком")
+        self.first_name = first_name.strip()
+        self.last_name = last_name.strip()
+
+        if email:
+            if not isinstance(email, str):
+                raise ValueError("Email має бути рядком")
+            if "@" not in email or "." not in email.split("@")[-1]:
+                raise ValueError("Невірний формат email")
+        self.email = email.strip() if email else ""
+
+        if nickname:
+            if not isinstance(nickname, str):
+                raise ValueError("Нікнейм має бути рядком")
+            if len(nickname) > 50:
+                raise ValueError("Нікнейм занадто довгий")
+        self.nickname = nickname.strip() if nickname else ""
+
+        if not isinstance(newsletter_subscription, bool):
+            raise ValueError("newsletter_subscription має бути булевим значенням")
         self.newsletter_subscription = newsletter_subscription
         self.login_attempts = 0
 

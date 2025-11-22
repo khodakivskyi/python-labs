@@ -44,7 +44,7 @@ def task08e():
     store_discount.add_discount_product("Хліб")
     store_discount.add_discount_product("Яблука")
     
-    discounts = store_discount.get_discounts_ptoducts()
+    discounts = store_discount.get_discounts_products()
     print(f"Товари зі знижкою: {discounts}")
 
 
