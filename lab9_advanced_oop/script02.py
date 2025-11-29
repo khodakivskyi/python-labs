@@ -58,7 +58,7 @@ class SmallHouse(House):
         super().__init__(area=40, price=price)
 
 
-if __name__ == "__main__":
+def task02():
     print("Довідкова інформація")
     Human.default_info()
     print()
@@ -89,3 +89,4 @@ if __name__ == "__main__":
     print("Фінальний стан об'єкта Human")
     human.info()
 
+task02()
