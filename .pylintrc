@@ -1,0 +1,32 @@
+[MASTER]
+ignore-patterns=
+    ^(__pycache__|.venv|venv|.idea)/
+
+[MESSAGES CONTROL]
+disable=
+    missing-module-docstring,
+    missing-class-docstring,
+    missing-function-docstring,
+    too-few-public-methods,
+    too-many-arguments,
+    too-many-branches,
+    too-many-statements,
+    too-many-return-statements,
+    too-many-locals,
+    too-many-positional-arguments,
+    too-many-boolean-expressions,
+    import-outside-toplevel,
+    raise-missing-from,
+    consider-using-f-string,
+    f-string-without-interpolation,
+    superfluous-parens,
+    no-else-break,
+    no-else-return,
+    broad-exception-caught
+
+[FORMAT]
+max-line-length=120
+
+[TYPECHECK]
+ignored-classes=optparse.Values,thread._local,_thread._local
+
