@@ -19,6 +19,7 @@ class KmrCsv:
     def get_num(self):
         return self.num
 
+    # Читає дані з CSV файлу і повертає їх у вигляді списку
     def read_csv(self):
         if self.ref is None:
             return None
@@ -29,6 +30,7 @@ class KmrCsv:
                 data.append(row)
         return data
 
+    # Виводить інформацію про файл: номер КМР і кількість студентів
     def info(self):
         data = self.read_csv()
         if data is None:
@@ -40,6 +42,7 @@ class KmrCsv:
 
 
 class Statistic:
+    # Визначає відсотки правильних відповідей на кожне питання серед усіх студентів
     def avg_stat(self, data):
         if not data or len(data) == 0:
             return tuple()
@@ -62,6 +65,7 @@ class Statistic:
         percentages = tuple((count / total_students * 100) if total_students > 0 else 0 for count in correct_counts)
         return percentages
 
+    # Визначає яку оцінку набрала відповідна кількість студентів
     def marks_stat(self, data):
         if not data or len(data) == 0:
             return {}
@@ -76,6 +80,7 @@ class Statistic:
                     pass
         return marks
 
+    # Визначає який середній бал за хвилину набирав студент під час виконання КМР
     def marks_per_time(self, data):
         if not data or len(data) == 0:
             return {}
@@ -108,6 +113,7 @@ class Statistic:
         except (ValueError, AttributeError):
             return 0
 
+    # Формує п'ять найкращих результатів середніх балів за хвилину для вибірки в заданих межах
     def best_marks_per_time(self, data, bottom_margin, top_margin):
         marks_per_time_dict = self.marks_per_time(data)
         filtered = {}
@@ -129,11 +135,13 @@ class Plots:
     def __init__(self):
         self._cat = None
 
+    # Встановлює каталог для збереження графіків
     def set_cat(self, cat):
         self._cat = cat
         if not os.path.exists(cat):
             os.makedirs(cat)
 
+    # Формує гістограму відсотків правильних відповідей на кожне питання
     def avg_plot(self, percentages):
         if not percentages:
             return
@@ -149,6 +157,7 @@ class Plots:
         plt.savefig(filename)
         plt.close()
 
+    # Формує гістограму розподілу оцінок за кількістю студентів
     def marks_plot(self, marks_dict):
         if not marks_dict:
             return
@@ -164,6 +173,7 @@ class Plots:
         plt.savefig(filename)
         plt.close()
 
+    # Формує гістограму для п'яти найкращих результатів середніх балів за хвилину
     def best_marks_plot(self, best_marks):
         if not best_marks:
             return
@@ -193,6 +203,7 @@ class KmrWork(KmrCsv, Statistic, Plots):
         KmrWork.kmrs[num] = ref
         self.set_cat(KmrWork.cat)
 
+    # Порівнює статистику двох КМР: кількість виконаних, середній бал, середній час
     def compare_csv(self, other_num):
         if self.num not in KmrWork.kmrs or other_num not in KmrWork.kmrs:
             print("Один з КМР не зареєстрований")
@@ -256,6 +267,7 @@ class KmrWork(KmrCsv, Statistic, Plots):
                     pass
         return total_minutes / count if count > 0 else 0
 
+    # Порівнює відсотки правильних відповідей двох КМР і зберігає гістограми
     def compare_avg_plots(self, other_num):
         if self.num not in KmrWork.kmrs or other_num not in KmrWork.kmrs:
             print("Один з КМР не зареєстрований")
