@@ -7,8 +7,26 @@ class Alphabet:
             lang = Alphabet.__ua_lang
         if letters is None:
             letters = Alphabet.__ua_letters
-        self.lang = lang
-        self.letters = letters
+
+        if not isinstance(lang, str) or not lang.strip():
+            raise ValueError("lang має бути непорожнім рядком")
+
+        if isinstance(letters, str):
+            letters_iter = list(letters)
+        else:
+            try:
+                letters_iter = list(letters)
+            except TypeError:
+                raise TypeError("letters має бути рядком або ітерованою послідовністю символів")
+
+        cleaned_letters = []
+        for ch in letters_iter:
+            if not isinstance(ch, str) or len(ch.strip()) != 1:
+                raise ValueError("У алфавіті всі символи мають бути непорожніми рядками довжини 1")
+            cleaned_letters.append(ch.strip())
+
+        self.lang = lang.strip()
+        self.letters = cleaned_letters
 
     def print_alphabet(self):
         for letter in self.letters:

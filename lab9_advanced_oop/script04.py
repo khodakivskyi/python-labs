@@ -8,12 +8,16 @@ class KmrCsv:
     num = None
 
     def set_ref(self, ref):
+        if ref is not None and not isinstance(ref, str):
+            raise TypeError("ref (шлях до CSV) має бути рядком або None")
         self.ref = ref
 
     def get_ref(self):
         return self.ref
 
     def set_num(self, num):
+        if not isinstance(num, (int, str)):
+            raise TypeError("num (номер КМР) має бути цілим числом або рядком")
         self.num = num
 
     def get_num(self):
@@ -23,11 +27,20 @@ class KmrCsv:
     def read_csv(self):
         if self.ref is None:
             return None
+        if not isinstance(self.ref, str) or not self.ref.strip():
+            return None
+        if not os.path.exists(self.ref):
+            print(f"Помилка: файл '{self.ref}' не існує")
+            return None
         data = []
-        with open(self.ref, 'r', encoding='utf-8') as f:
-            reader = csv.reader(f)
-            for row in reader:
-                data.append(row)
+        try:
+            with open(self.ref, 'r', encoding='utf-8') as f:
+                reader = csv.reader(f)
+                for row in reader:
+                    data.append(row)
+        except (OSError, csv.Error) as e:
+            print(f"Помилка читання CSV файлу '{self.ref}': {e}")
+            return None
         return data
 
     # Виводить інформацію про файл: номер КМР і кількість студентів
@@ -44,9 +57,9 @@ class KmrCsv:
 class Statistic:
     # Визначає відсотки правильних відповідей на кожне питання серед усіх студентів
     def avg_stat(self, data):
-        if not data or len(data) == 0:
+        if not isinstance(data, list) or len(data) == 0:
             return tuple()
-        if len(data[0]) < 5:
+        if not data[0] or len(data[0]) < 5:
             return tuple()
         question_count = len(data[0]) - 5
         if question_count <= 0:
@@ -67,7 +80,7 @@ class Statistic:
 
     # Визначає яку оцінку набрала відповідна кількість студентів
     def marks_stat(self, data):
-        if not data or len(data) == 0:
+        if not isinstance(data, list) or len(data) == 0:
             return {}
         marks = {}
         for row in data:
@@ -82,7 +95,7 @@ class Statistic:
 
     # Визначає який середній бал за хвилину набирав студент під час виконання КМР
     def marks_per_time(self, data):
-        if not data or len(data) == 0:
+        if not isinstance(data, list) or len(data) == 0:
             return {}
         result = {}
         for row in data:
@@ -102,6 +115,8 @@ class Statistic:
 
     def _parse_time(self, time_str):
         try:
+            if time_str is None:
+                return 0
             if 'хв' in time_str:
                 parts = time_str.split('хв')
                 minutes = int(parts[0].strip())
@@ -115,6 +130,13 @@ class Statistic:
 
     # Формує п'ять найкращих результатів середніх балів за хвилину для вибірки в заданих межах
     def best_marks_per_time(self, data, bottom_margin, top_margin):
+        if not isinstance(data, list) or len(data) == 0:
+            return tuple()
+        if not isinstance(bottom_margin, (int, float)) or not isinstance(top_margin, (int, float)):
+            raise ValueError("Межі мають бути числами")
+        if bottom_margin > top_margin:
+            bottom_margin, top_margin = top_margin, bottom_margin
+
         marks_per_time_dict = self.marks_per_time(data)
         filtered = {}
         for row in data:
@@ -137,9 +159,14 @@ class Plots:
 
     # Встановлює каталог для збереження графіків
     def set_cat(self, cat):
-        self._cat = cat
-        if not os.path.exists(cat):
-            os.makedirs(cat)
+        if cat is None:
+            self._cat = None
+            return
+        if not isinstance(cat, str) or not cat.strip():
+            raise ValueError("Каталог для збереження графіків має бути непорожнім рядком або None")
+        self._cat = cat.strip()
+        if not os.path.exists(self._cat):
+            os.makedirs(self._cat, exist_ok=True)
 
     # Формує гістограму відсотків правильних відповідей на кожне питання
     def avg_plot(self, percentages):
@@ -177,9 +204,16 @@ class Plots:
     def best_marks_plot(self, best_marks):
         if not best_marks:
             return
+        if not isinstance(best_marks, (list, tuple)):
+            return
+        try:
+            student_ids = [item[0][:8] + '...' if len(str(item[0])) > 8 else str(item[0]) for item in best_marks if len(item) >= 3]
+            avg_per_min = [item[2] for item in best_marks if len(item) >= 3]
+            if not student_ids or not avg_per_min:
+                return
+        except (IndexError, TypeError):
+            return
         plt.figure(figsize=(10, 6))
-        student_ids = [item[0][:8] + '...' for item in best_marks]
-        avg_per_min = [item[2] for item in best_marks]
         plt.bar(student_ids, avg_per_min)
         plt.xlabel('ID студента')
         plt.ylabel('Середній бал за хвилину')
@@ -200,7 +234,7 @@ class KmrWork(KmrCsv, Statistic, Plots):
         Plots.__init__(self)
         self.set_ref(ref)
         self.set_num(num)
-        KmrWork.kmrs[num] = ref
+        KmrWork.kmrs[self.num] = self.ref
         self.set_cat(KmrWork.cat)
 
     # Порівнює статистику двох КМР: кількість виконаних, середній бал, середній час
@@ -233,8 +267,11 @@ class KmrWork(KmrCsv, Statistic, Plots):
         result += f"КМР {other_num}: кількість виконаних - {count2}, середній бал - {avg2:.2f}, середній час - {avg_time2:.2f} хв\n"
         print(result)
         filename = os.path.join(self.cat, f'compare_{self.num}_vs_{other_num}.txt')
-        with open(filename, 'w', encoding='utf-8') as f:
-            f.write(result)
+        try:
+            with open(filename, 'w', encoding='utf-8') as f:
+                f.write(result)
+        except (OSError, IOError) as e:
+            print(f"Помилка запису файлу '{filename}': {e}")
 
     def _calculate_avg_mark(self, data):
         if not data or len(data) == 0:
@@ -288,6 +325,10 @@ class KmrWork(KmrCsv, Statistic, Plots):
         
         percentages1 = self.avg_stat(data1)
         percentages2 = self.avg_stat(data2)
+        
+        if not percentages1 or not percentages2:
+            print("Помилка: не вдалося обчислити відсотки для порівняння")
+            return
         
         plt.figure(figsize=(10, 6))
         questions = [f"Питання {i+1}" for i in range(len(percentages1))]
